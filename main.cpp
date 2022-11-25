@@ -1,9 +1,9 @@
+#include <QApplication>
 #include "ssvepviewer.h"
 
-#include <QApplication>
+using namespace ehdu;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
     QApplication a(argc, argv);
     SsvepViewer w;
     w.show();
