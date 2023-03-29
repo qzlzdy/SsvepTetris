@@ -1,5 +1,5 @@
 ### Project Specific stuff
-*.png
+ThirdParty/
 ### Qt template
 # User-specific stuff:
 *.pro.user

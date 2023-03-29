@@ -1,11 +1,11 @@
 #include <QApplication>
-#include "ssvepviewer.h"
+#include "ssveptetris.h"
 
 using namespace ehdu;
 
 int main(int argc, char *argv[]){
     QApplication a(argc, argv);
-    SsvepViewer w;
+    SsvepTetris w;
     w.show();
     return a.exec();
 }

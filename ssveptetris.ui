@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SsvepViewer</class>
- <widget class="QMainWindow" name="SsvepViewer">
+ <class>SsvepTetris</class>
+ <widget class="QMainWindow" name="SsvepTetris">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>浏览器</string>
+   <string>脑控俄罗斯方块</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="layout"/>
@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>42</height>
+     <height>38</height>
     </rect>
    </property>
   </widget>
