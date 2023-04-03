@@ -42,7 +42,7 @@ void SsvepTimer::run(){
             count_14hz %= threshold_14hz;
             emit timeout_14hz();
         }
-        msleep(4);
+//        msleep(4);
     }
 }
 

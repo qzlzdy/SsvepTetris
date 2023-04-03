@@ -48,7 +48,7 @@ void Decoder::predict(){
     size_t result = distance(pred.begin(),
                              max_element(pred.begin(), pred.end()));
     cmds.push_back(result);
-    size_t realRes = 3;
+    size_t realRes = 1;     // Default no-operation
     if(cmds.full()){
         if(cmds[0] == cmds[1] || cmds[0] == cmds[2]){
             realRes = cmds[0];

@@ -9,10 +9,11 @@
 #include <QMainWindow>
 #include <QMenu>
 #include "acquiredevice.h"
-#include "controller.h"
 #include "decoder.h"
+#include "gamepad.h"
 #include "ssveptimer.h"
 #include "stimulu.h"
+#include "tetris.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SsvepTetris; }
@@ -38,7 +39,6 @@ private:
 
     QMenu *gameMenu;
     QAction *startGame;
-    QAction *restartGame;
     QAction *haltGame;
     QAction *resumeGame;
 
@@ -65,7 +65,8 @@ private:
     Decoder *decoder;
 
     // Game
-    Controller *ctrl;
+    Tetris *ctrl;
+    Gamepad *pad;
 private slots:
     void errorMessageHandle(const std::string &msg);
 };

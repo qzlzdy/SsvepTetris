@@ -10,7 +10,6 @@
 #include "fakestreamer.h"
 //#include "psdadecoder.h"
 #include "fbccadecoder.h"
-#include "tetris.h"
 
 using namespace std;
 using namespace ehdu;
@@ -20,13 +19,15 @@ namespace {
 once_flag deviceStarted;
 
 Q_GLOBAL_STATIC_WITH_ARGS(QString, authorInfo, (
-    "<p align=center>作者：Qzlzdy</p>"
+    "<p align=center>作者："
+        "<a href=\"https://yangvillage.top/portfolio\">Qzlzdy</a>"
+    "</p>"
     "<p align=center>杭州电子科技大学</p>"
     "<p align=center>计算机学院</p>"
-    "<br/>"
-    "<p align=center>"
-        "<a href=\"https://yangvillage.top/portfolio\">作者主页</a>"
-    "</p>"
+));
+
+Q_GLOBAL_STATIC_WITH_ARGS(QString, operationInfo, (
+    "<h1>脑空俄罗斯方块</h1>"
 ));
 
 }
@@ -49,10 +50,8 @@ QMainWindow(parent), ui(new Ui::SsvepTetris){
     gameMenu = ui->menubar->addMenu("游戏");
     gameMenu->setMinimumWidth(200);
     startGame = gameMenu->addAction("开始游戏");
-    restartGame = gameMenu->addAction("重新开始");
     haltGame = gameMenu->addAction("暂停游戏");
     resumeGame = gameMenu->addAction("恢复游戏");
-    restartGame->setEnabled(false);
     haltGame->setEnabled(false);
     resumeGame->setEnabled(false);
 
@@ -69,7 +68,9 @@ QMainWindow(parent), ui(new Ui::SsvepTetris){
     rightArr = new QShortcut(Qt::Key_Right, this);
 
     // Main Scene
-//    ui->layout->addWidget(view, 1, 1);
+    pad = new Gamepad(this);
+    ui->layout->addWidget(pad, 1, 1);
+    pad->resetPad();
 
     // SSVEP Stimulu
     up = new Stimulu(this);
@@ -132,6 +133,24 @@ void SsvepTetris::initialize(){
         startStream->setEnabled(true);
     });
 
+    connect(startGame, &QAction::triggered, ctrl, &Tetris::startGame);
+    connect(startGame, &QAction::triggered, this, [&](){
+        haltGame->setEnabled(true);
+    });
+    connect(haltGame, &QAction::triggered, ctrl, &Tetris::haltGame);
+    connect(haltGame, &QAction::triggered, this, [&](){
+        haltGame->setEnabled(false);
+        resumeGame->setEnabled(true);
+    });
+    connect(resumeGame, &QAction::triggered, ctrl, &Tetris::resumeGame);
+    connect(resumeGame, &QAction::triggered, this, [&](){
+        haltGame->setEnabled(true);
+        resumeGame->setEnabled(false);
+    });
+
+    connect(operation, &QAction::triggered, this, [&](){
+        QMessageBox::information(this, "操作说明", *operationInfo);
+    });
     connect(author, &QAction::triggered, this, [&](){
         QMessageBox::information(this, "作者信息", *authorInfo);
     });
@@ -139,10 +158,10 @@ void SsvepTetris::initialize(){
         QMessageBox::aboutQt(this, "关于Qt");
     });
 
-    connect(upArr, &QShortcut::activated, ctrl, &Controller::cmdUp);
-    connect(downArr, &QShortcut::activated, ctrl, &Controller::cmdDown);
-    connect(leftArr, &QShortcut::activated, ctrl, &Controller::cmdLeft);
-    connect(rightArr, &QShortcut::activated, ctrl, &Controller::cmdRight);
+    connect(upArr, &QShortcut::activated, ctrl, &Tetris::rotate);
+    connect(downArr, &QShortcut::activated, ctrl, &Tetris::nop);
+    connect(leftArr, &QShortcut::activated, ctrl, &Tetris::moveLeft);
+    connect(rightArr, &QShortcut::activated, ctrl, &Tetris::moveRight);
 
     connect(timer, &SsvepTimer::timeout_8hz, up, &Stimulu::updateColor);
     connect(timer, &SsvepTimer::timeout_10hz, down, &Stimulu::updateColor);
@@ -154,10 +173,16 @@ void SsvepTetris::initialize(){
     connect(device, &AcquireDevice::dataReady, decoder, &Decoder::processData);
     connect(startStream, &QAction::triggered, decoder, &Decoder::start);
     connect(stopStream, &QAction::triggered, decoder, &Decoder::stop);
-    connect(decoder, &Decoder::cmd0, ctrl, &Controller::cmdUp);
-    connect(decoder, &Decoder::cmd1, ctrl, &Controller::cmdDown);
-    connect(decoder, &Decoder::cmd2, ctrl, &Controller::cmdLeft);
-    connect(decoder, &Decoder::cmd3, ctrl, &Controller::cmdRight);
+    connect(decoder, &Decoder::cmd0, ctrl, &Tetris::rotate);
+    connect(decoder, &Decoder::cmd1, ctrl, &Tetris::nop);
+    connect(decoder, &Decoder::cmd2, ctrl, &Tetris::moveLeft);
+    connect(decoder, &Decoder::cmd3, ctrl, &Tetris::moveRight);
+
+    connect(ctrl, &Tetris::draw, pad, &Gamepad::draw);
+    connect(ctrl, &Tetris::gameover, this, [&](){
+        haltGame->setEnabled(false);
+        resumeGame->setEnabled(false);
+    });
 }
 
 SsvepTetris::~SsvepTetris(){
@@ -167,6 +192,7 @@ SsvepTetris::~SsvepTetris(){
     device->wait();
     delete device;
     delete decoder;
+    delete pad;
     delete ctrl;
 
     // Shortcuts
@@ -192,7 +218,6 @@ SsvepTetris::~SsvepTetris(){
     delete deviceMenu;
 
     delete startGame;
-    delete restartGame;
     delete haltGame;
     delete resumeGame;
     delete gameMenu;

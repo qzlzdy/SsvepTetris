@@ -12,10 +12,10 @@ SOURCES += \
     main.cpp \
     acquiredevice.cpp \
     brainwave.cpp \
-    controller.cpp \
     decoder.cpp \
     fakestreamer.cpp \
     fbccadecoder.cpp \
+    gamepad.cpp \
     psdadecoder.cpp \
     ssveptimer.cpp \
     ssveptetris.cpp \
@@ -25,11 +25,10 @@ SOURCES += \
 HEADERS += \
     acquiredevice.h \
     brainwave.h \
-    constants.h \
-    controller.h \
     decoder.h \
     fakestreamer.h \
     fbccadecoder.h \
+    gamepad.h \
     psdadecoder.h \
     ssveptimer.h \
     ssveptetris.h \
