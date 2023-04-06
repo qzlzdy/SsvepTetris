@@ -13,7 +13,7 @@ class Tetris: public QObject{
     Q_OBJECT
 public:
     enum PieceKind: uint8_t{
-        I, J, L, X, S, T, Z
+        I, J, L, O, S, T, Z
     };
     static std::bitset<200>
     eraseLine(const std::bitset<200> &orin, size_t lien);
@@ -25,12 +25,12 @@ public:
     const std::bitset<200> &getIset() const;
     const std::bitset<200> &getJset() const;
     const std::bitset<200> &getLset() const;
-    const std::bitset<200> &getXset() const;
+    const std::bitset<200> &getOset() const;
     const std::bitset<200> &getSset() const;
     const std::bitset<200> &getTset() const;
     const std::bitset<200> &getZset() const;
-    std::pair<std::bitset<200>, QColor> getCurrPattern() const;
-    std::pair<std::bitset<16>, QColor> getNextPattern() const;
+    std::pair<std::bitset<200>, QColor> getCurrPiece() const;
+    std::pair<std::bitset<16>, QColor> getNextPiece() const;
 public slots:
     void startGame();
     void haltGame();
@@ -52,7 +52,7 @@ private:
     std::bitset<200> iset;
     std::bitset<200> jset;
     std::bitset<200> lset;
-    std::bitset<200> xset;
+    std::bitset<200> oset;
     std::bitset<200> sset;
     std::bitset<200> tset;
     std::bitset<200> zset;

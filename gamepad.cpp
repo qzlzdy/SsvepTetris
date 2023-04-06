@@ -52,19 +52,19 @@ void Gamepad::paintEvent(QPaintEvent *){
     painter.setFont(font);
 
     painter.fillRect(0, 0, 300, 600, QColorConstants::Black);
-    auto currPattern = ctrl.getCurrPattern();
+    auto currPattern = ctrl.getCurrPiece();
     drawPattern(painter, currPattern.first, currPattern.second);
     drawPattern(painter, ctrl.getIset(), Tetris::getPieceColor(Tetris::I));
     drawPattern(painter, ctrl.getJset(), Tetris::getPieceColor(Tetris::J));
     drawPattern(painter, ctrl.getLset(), Tetris::getPieceColor(Tetris::L));
-    drawPattern(painter, ctrl.getXset(), Tetris::getPieceColor(Tetris::X));
+    drawPattern(painter, ctrl.getOset(), Tetris::getPieceColor(Tetris::O));
     drawPattern(painter, ctrl.getSset(), Tetris::getPieceColor(Tetris::S));
     drawPattern(painter, ctrl.getTset(), Tetris::getPieceColor(Tetris::T));
     drawPattern(painter, ctrl.getZset(), Tetris::getPieceColor(Tetris::Z));
 
     painter.drawText(360, 100, "下一个");
     painter.fillRect(340, 120, 120, 120, QColorConstants::Black);
-    auto nextPattern = ctrl.getNextPattern();
+    auto nextPattern = ctrl.getNextPiece();
     drawPattern(painter, nextPattern.first, nextPattern.second);
 
     painter.drawText(375, 300, "分数");
