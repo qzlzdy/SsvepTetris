@@ -1,20 +1,26 @@
 #ifndef GAMEPAD_H
 #define GAMEPAD_H
 
+#include <bitset>
 #include <QColor>
+#include <QPainter>
 #include <QWidget>
 
 namespace ehdu{
 
+class Tetris;
+
 class Gamepad: public QWidget{
 public:
-    explicit Gamepad(QWidget *parent = nullptr);
+    explicit Gamepad(Tetris &c, QWidget *parent = nullptr);
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
-public slots:
-    void draw(size_t x, size_t y, QColor c);
-    void setScore(unsigned score);
-    void resetPad();
+protected:
+    void paintEvent(QPaintEvent *event) override;
+private:
+    void drawPattern(QPainter &p, const std::bitset<200> &bs, QColor c);
+    void drawPattern(QPainter &p, const std::bitset<16> &bs, QColor c);
+    Tetris &ctrl;
 };
 
 } // namespace ehdu

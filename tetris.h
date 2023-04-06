@@ -3,6 +3,7 @@
 
 #include <bitset>
 #include <random>
+#include <utility>
 #include <QColor>
 #include <QObject>
 
@@ -14,10 +15,22 @@ public:
     enum PieceKind: uint8_t{
         I, J, L, X, S, T, Z
     };
+    static std::bitset<200>
+    eraseLine(const std::bitset<200> &orin, size_t lien);
     static const std::bitset<200> &
     getPattern(PieceKind kind, std::size_t rotate);
     static QColor getPieceColor(PieceKind kind);
     explicit Tetris(QObject *parent = nullptr);
+    unsigned getScore() const;
+    const std::bitset<200> &getIset() const;
+    const std::bitset<200> &getJset() const;
+    const std::bitset<200> &getLset() const;
+    const std::bitset<200> &getXset() const;
+    const std::bitset<200> &getSset() const;
+    const std::bitset<200> &getTset() const;
+    const std::bitset<200> &getZset() const;
+    std::pair<std::bitset<200>, QColor> getCurrPattern() const;
+    std::pair<std::bitset<16>, QColor> getNextPattern() const;
 public slots:
     void startGame();
     void haltGame();
@@ -27,10 +40,10 @@ public slots:
     void moveRight();
     void nop();
 signals:
-    void draw(std::size_t x, std::size_t y, QColor c);
     void gameover();
+    void updatePad();
 private:
-    void drawPattern(const std::bitset<200> &orin, const std::bitset<200> &now);
+    void checkFillup();
     void freefall();
     void resetPad();
     void solidfy(const std::bitset<200> &pattern);
@@ -50,6 +63,7 @@ private:
     std::mt19937 gen;
     std::uniform_int_distribution<> distrib;
     std::size_t x, y;
+    unsigned score;
 };
 
 } // namespace ehdu

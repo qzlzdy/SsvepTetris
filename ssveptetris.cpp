@@ -68,9 +68,9 @@ QMainWindow(parent), ui(new Ui::SsvepTetris){
     rightArr = new QShortcut(Qt::Key_Right, this);
 
     // Main Scene
-    pad = new Gamepad(this);
+    ctrl = new Tetris;
+    pad = new Gamepad(*ctrl, this);
     ui->layout->addWidget(pad, 1, 1);
-    pad->resetPad();
 
     // SSVEP Stimulu
     up = new Stimulu(this);
@@ -92,7 +92,6 @@ QMainWindow(parent), ui(new Ui::SsvepTetris){
     device = new FakeStreamer(this);
 //    decoder = new PsdaDecoder(this);
     decoder = new FbccaDecoder(this);
-    ctrl = new Tetris;
 
     initialize();
 //    timer->start();
@@ -178,7 +177,9 @@ void SsvepTetris::initialize(){
     connect(decoder, &Decoder::cmd2, ctrl, &Tetris::moveLeft);
     connect(decoder, &Decoder::cmd3, ctrl, &Tetris::moveRight);
 
-    connect(ctrl, &Tetris::draw, pad, &Gamepad::draw);
+    connect(ctrl, &Tetris::updatePad, this, [&](){
+        pad->update();
+    });
     connect(ctrl, &Tetris::gameover, this, [&](){
         haltGame->setEnabled(false);
         resumeGame->setEnabled(false);

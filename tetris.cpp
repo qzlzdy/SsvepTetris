@@ -5,6 +5,13 @@
 using namespace std;
 using namespace ehdu;
 
+bitset<200> Tetris::eraseLine(const bitset<200> &orin, size_t line){
+    size_t below = (line + 1) * 10;
+    size_t above = (20 - line) * 10;
+    return ((orin >> below) << (below - 10))
+           | ((orin << above) >> above);
+}
+
 constexpr bitset<200> I_hori(0xfull);
 constexpr bitset<200> I_vert(0x80200802ull);
 constexpr bitset<200> J_0(0x200803ull);
@@ -127,11 +134,62 @@ QColor Tetris::getPieceColor(PieceKind kind){
 Tetris::Tetris(QObject *parent): QObject(parent),
 gen(random_device()()), distrib(I, Z){
     gaming = false;
+    resetPad();
 };
+
+unsigned Tetris::getScore() const{
+    return score;
+}
+
+const bitset<200> &Tetris::getIset() const{
+    return iset;
+}
+
+const bitset<200> &Tetris::getJset() const{
+    return jset;
+}
+
+const bitset<200> &Tetris::getLset() const{
+    return lset;
+}
+
+const bitset<200> &Tetris::getXset() const{
+    return xset;
+}
+
+const bitset<200> &Tetris::getSset() const{
+    return sset;
+}
+
+const bitset<200> &Tetris::getTset() const{
+    return tset;
+}
+
+const bitset<200> &Tetris::getZset() const{
+    return zset;
+}
+
+pair<bitset<200>, QColor> Tetris::getCurrPattern() const{
+    return make_pair(getPattern(currPiece, rotateMark) << x << (y * 10),
+                     getPieceColor(currPiece));
+}
+
+pair<bitset<16>, QColor> Tetris::getNextPattern() const{
+    bitset<200> pattern = getPattern(nextPiece, rotateMark);
+    bitset<16> trim;
+    for(size_t i = 0; i < 4; ++i){
+        for(size_t j = 0; j < 4; ++j){
+            trim[4 * i + j] = pattern[10 * i + j];
+        }
+    }
+    return make_pair(trim, getPieceColor(nextPiece));
+}
 
 void Tetris::startGame(){
     gaming = true;
     resetPad();
+    score = 0;
+    emit updatePad();
 }
 
 void Tetris::haltGame(){
@@ -147,6 +205,7 @@ void Tetris::rotate(){
         return;
     }
     freefall();
+    emit updatePad();
 }
 
 void Tetris::moveLeft(){
@@ -154,6 +213,7 @@ void Tetris::moveLeft(){
         return;
     }
     freefall();
+    emit updatePad();
 }
 
 void Tetris::moveRight(){
@@ -161,6 +221,7 @@ void Tetris::moveRight(){
         return;
     }
     freefall();
+    emit updatePad();
 }
 
 void Tetris::nop(){
@@ -168,23 +229,35 @@ void Tetris::nop(){
         return;
     }
     freefall();
+    emit updatePad();
 }
 
-void Tetris::drawPattern(const bitset<200> &orin, const bitset<200> &now){
-    bitset<200> mask(1ull);
+void Tetris::checkFillup(){
+    bitset<200> mask(0x3ff);
     size_t ind = 0;
-    bitset<200> erase = orin & ~now;
-    bitset<200> patch = now & ~orin;
-    while(ind < 200){
-        if((mask & erase).any()){
-            emit draw(ind % 10, ind / 10, QColorConstants::Black);
+    unsigned combo = 0;
+    while(ind < 20){
+        if((mask & solid).all()){
+            solid = eraseLine(solid, ind);
+            iset = eraseLine(iset, ind);
+            jset = eraseLine(jset, ind);
+            lset = eraseLine(lset, ind);
+            xset = eraseLine(xset, ind);
+            sset = eraseLine(sset, ind);
+            tset = eraseLine(tset, ind);
+            zset = eraseLine(zset, ind);
+            score += ++combo * 100;
         }
-        if((mask & patch).any()){
-            emit draw(ind % 10, ind / 10, getPieceColor(currPiece));
+        else{
+            mask <<= 10;
+            ++ind;
         }
-        mask <<= 1;
-        ++ind;
     }
+    currPiece = nextPiece;
+    rotateMark = 0;
+    nextPiece = (PieceKind)distrib(gen);
+    x = 4;
+    y = 20;
 }
 
 void Tetris::freefall(){
@@ -230,33 +303,29 @@ void Tetris::resetPad(){
 }
 
 void Tetris::solidfy(const bitset<200> &pattern){
-    solid &= pattern;
+    solid |= pattern;
     switch(currPiece){
     case I:
-        iset &= pattern;
+        iset |= pattern;
         break;
     case J:
-        jset &= pattern;
+        jset |= pattern;
         break;
     case L:
-        lset &= pattern;
+        lset |= pattern;
         break;
     case X:
-        xset &= pattern;
+        xset |= pattern;
         break;
     case S:
-        sset &= pattern;
+        sset |= pattern;
         break;
     case T:
-        tset &= pattern;
+        tset |= pattern;
         break;
     case Z:
-        zset &= pattern;
+        zset |= pattern;
         break;
     }
-    currPiece = nextPiece;
-    rotateMark = 0;
-    nextPiece = (PieceKind)distrib(gen);
-    x = 4;
-    y = 20;
+    checkFillup();
 }
